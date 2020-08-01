@@ -39,29 +39,44 @@ def main(_argv):
     #initialize deep sort
     model_filename = 'model_data/mars-small128.pb'
     encoder = gdet.create_box_encoder(model_filename, batch_size=1)
+
+    """
+    A nearest neighbor distance metric that, for each target, returns
+    the closest distance to any sample that has been observed so far.
+    """
     metric = nn_matching.NearestNeighborDistanceMetric("cosine", max_cosine_distance, nn_budget)
+
+    # multi target tracker
     tracker = Tracker(metric)
 
+    # Return a list of physical devices visible to the host runtime
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
+
     if len(physical_devices) > 0:
         tf.config.experimental.set_memory_growth(physical_devices[0], True)
+        # enable memory growth for physical devices
 
+    # identify type of YoloV3 used
     if FLAGS.tiny:
         yolo = YoloV3Tiny(classes=FLAGS.num_classes)
     else:
         yolo = YoloV3(classes=FLAGS.num_classes)
 
+    # load pre-trained weights
     yolo.load_weights(FLAGS.weights)
     logging.info('weights loaded')
 
+    # array contains name of classes
     class_names = [c.strip() for c in open(FLAGS.classes).readlines()]
     logging.info('classes loaded')
 
+    # capture a video from the camera or a video file
     try:
         vid = cv2.VideoCapture(int(FLAGS.video))
     except:
         vid = cv2.VideoCapture(FLAGS.video)
 
+    # output video is empty
     out = None
 
     if FLAGS.output:
@@ -77,6 +92,7 @@ def main(_argv):
     fps = 0.0
     count = 0 
     while True:
+
         _, img = vid.read()
 
         if img is None:
@@ -88,11 +104,18 @@ def main(_argv):
             else: 
                 break
 
-        img_in = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) 
+        # convert an image from one color space to another  
+        img_in = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        # return a tensor with a length 1 axis inserted at index 0
         img_in = tf.expand_dims(img_in, 0)
+
+        # resize the image to 416x416
+        # tensorflow.image.resize: resize image to size
         img_in = transform_images(img_in, FLAGS.size)
 
+        # return the number of seconds passed since epoch
         t1 = time.time()
+
         boxes, scores, classes, nums = yolo.predict(img_in)
         classes = classes[0]
         names = []
@@ -101,6 +124,7 @@ def main(_argv):
         names = np.array(names)
         converted_boxes = convert_boxes(img, boxes[0])
         features = encoder(img, converted_boxes)    
+
         detections = [Detection(bbox, score, class_name, feature) for bbox, score, class_name, feature in zip(converted_boxes, scores[0], names, features)]
         
         #initialize color map
@@ -114,20 +138,21 @@ def main(_argv):
         indices = preprocessing.non_max_suppression(boxs, classes, nms_max_overlap, scores)
         detections = [detections[i] for i in indices]        
 
-        # Call the tracker
+        # Pass detections to the deepsort object and obtain the track information
         tracker.predict()
         tracker.update(detections)
 
         for track in tracker.tracks:
             if not track.is_confirmed() or track.time_since_update > 1:
                 continue 
-            bbox = track.to_tlbr()
-            class_name = track.get_class()
-            color = colors[int(track.track_id) % len(colors)]
-            color = [i * 255 for i in color]
-            cv2.rectangle(img, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), color, 2)
+            bbox = track.to_tlbr() # get the corrected/predicted bounding box
+            class_name = track.get_class() # get the class name of particular object
+            color = colors[int(track.track_id) % len(colors)] 
+            color = [i * 255 for i in color] 
+            # draw detection on frame
+            cv2.rectangle(img, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), color, 2) # draw rectangle 
             cv2.rectangle(img, (int(bbox[0]), int(bbox[1]-30)), (int(bbox[0])+(len(class_name)+len(str(track.track_id)))*17, int(bbox[1])), color, -1)
-            cv2.putText(img, class_name + "-" + str(track.track_id),(int(bbox[0]), int(bbox[1]-10)),0, 0.75, (255,255,255),2)
+            cv2.putText(img, class_name + "-" + str(track.track_id),(int(bbox[0]), int(bbox[1]-10)),0, 0.75, (255,255,255),2) # insert objectName and objectID
             
         ### UNCOMMENT BELOW IF YOU WANT CONSTANTLY CHANGING YOLO DETECTIONS TO BE SHOWN ON SCREEN
         #for det in detections:
