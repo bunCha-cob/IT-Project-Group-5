@@ -115,6 +115,7 @@ def main(_argv):
 
         # return the number of seconds passed since epoch
         t1 = time.time()
+        time_finish_last_tracking = t1;
 
         boxes, scores, classes, nums = yolo.predict(img_in)
         classes = classes[0]
@@ -163,6 +164,7 @@ def main(_argv):
             if x_start >= int(w):
                 break # finish drawing here
 
+        time_step = time.time() - time_finish_last_tracking
         for track in tracker.tracks:
             if not track.is_confirmed() or track.time_since_update > 1:
                 continue 
@@ -170,6 +172,11 @@ def main(_argv):
             class_name = track.get_class() # get the class name of particular object
             color = colors[int(track.track_id) % len(colors)] 
             color = [i * 255 for i in color] 
+
+            # identify center of a boundary box
+            x_cent = int(bbox[0] + (bbox[2]-bbox[0])/2)
+            y_cent = int(bbox[1] + (bbox[3]-bbox[1])/2)
+
             # draw detection on frame
             cv2.rectangle(img, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), color, 2) # draw rectangle 
             cv2.rectangle(img, (int(bbox[0]), int(bbox[1]-30)), (int(bbox[0])+(len(class_name)+len(str(track.track_id)))*17, int(bbox[1])), color, -1)
@@ -179,7 +186,8 @@ def main(_argv):
         #for det in detections:
         #    bbox = det.to_tlbr() 
         #    cv2.rectangle(img,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
-        
+        time_finish_last_tracking = time.time()
+
         # print fps on screen 
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
         cv2.putText(img, "FPS: {:.2f}".format(fps), (0, 30),
