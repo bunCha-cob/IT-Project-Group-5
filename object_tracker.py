@@ -142,6 +142,27 @@ def main(_argv):
         tracker.predict()
         tracker.update(detections)
 
+        h, w, c = img.shape
+        # draw horizontal boxes
+        step = int(h/15);
+        y_start = 0;
+        while True:
+            y_end = y_start + step 
+            cv2.rectangle(img, (0, y_start), (int(w), y_end)  , (0,0,0), 1)
+            y_start = y_end
+            if y_start >= int(h):
+                break # finish drawing here
+        
+        # draw vertical boxes
+        step = int(w/15);
+        x_start = 0;
+        while True:
+            x_end = x_start + step 
+            cv2.rectangle(img, (x_start, 0), (x_end, int(h))  , (0,0,0), 1)
+            x_start = x_end
+            if x_start >= int(w):
+                break # finish drawing here
+
         for track in tracker.tracks:
             if not track.is_confirmed() or track.time_since_update > 1:
                 continue 
