@@ -17,6 +17,9 @@ from deep_sort.detection import Detection
 from deep_sort.tracker import Tracker
 from tools import generate_detections as gdet
 from PIL import Image
+from mpl_toolkits import mplot3d
+import matplotlib.pyplot as plt
+from matplotlib import cm
 
 flags.DEFINE_string('classes', './data/labels/coco.names', 'path to classes file')
 flags.DEFINE_string('weights', './weights/yolov3.tf',
@@ -89,6 +92,17 @@ def main(_argv):
         list_file = open('detection.txt', 'w')
         frame_index = -1 
     
+    _, img = vid.read()
+    h, w, c = img.shape
+    h_numStep = 12; # number of boxes in a column
+    w_numStep = 20; # number of boxes in a row
+
+    # store the total time that customers stay in box[i][j] 
+    total_time_engage = [[0 for i in range(w_numStep)] for j in range(h_numStep)]
+
+    # store the time that customer k is stationary in box[i][j]
+    stationary_time = [[[0 for i in range(w_numStep)] for j in range(h_numStep)] for k in range(1000)]
+
     fps = 0.0
     count = 0 
     while True:
@@ -143,22 +157,21 @@ def main(_argv):
         tracker.predict()
         tracker.update(detections)
 
-        h, w, c = img.shape
         # draw horizontal boxes
-        step = int(h/15);
+        y_step = int(h/h_numStep);
         y_start = 0;
         while True:
-            y_end = y_start + step 
+            y_end = y_start + y_step 
             cv2.rectangle(img, (0, y_start), (int(w), y_end)  , (0,0,0), 1)
             y_start = y_end
             if y_start >= int(h):
                 break # finish drawing here
         
         # draw vertical boxes
-        step = int(w/15);
+        x_step = int(w/w_numStep);
         x_start = 0;
         while True:
-            x_end = x_start + step 
+            x_end = x_start + x_step 
             cv2.rectangle(img, (x_start, 0), (x_end, int(h))  , (0,0,0), 1)
             x_start = x_end
             if x_start >= int(w):
@@ -181,6 +194,13 @@ def main(_argv):
             cv2.rectangle(img, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), color, 2) # draw rectangle 
             cv2.rectangle(img, (int(bbox[0]), int(bbox[1]-30)), (int(bbox[0])+(len(class_name)+len(str(track.track_id)))*17, int(bbox[1])), color, -1)
             cv2.putText(img, class_name + "-" + str(track.track_id),(int(bbox[0]), int(bbox[1]-10)),0, 0.75, (255,255,255),2) # insert objectName and objectID
+
+            # update the stationary_time and total_time_engage array
+            if class_name == "person":
+                x_pos = int(x_cent/x_step)
+                y_pos = int(y_cent/y_step)
+                stationary_time[track.track_id][y_pos][x_pos] += time_step 
+                total_time_engage[y_pos][x_pos] += time_step
             
         ### UNCOMMENT BELOW IF YOU WANT CONSTANTLY CHANGING YOLO DETECTIONS TO BE SHOWN ON SCREEN
         #for det in detections:
@@ -205,6 +225,31 @@ def main(_argv):
         # press q to quit
         if cv2.waitKey(1) == ord('q'):
             break
+
+    # plot the graph 
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    ax = plt.axes(projection='3d')
+
+    print(total_time_engage)
+    # Data for a three-dimensional line
+    x = np.arange(w_numStep-1, -1, -1)
+    y = np.linspace(0, h_numStep-1, h_numStep)
+    X, Y = np.meshgrid(x, y)
+    Z = [[0 for j in range(w_numStep)] for i in range(h_numStep)]
+    for i in range(h_numStep):
+        for j in range(w_numStep):
+            Z[i][j] = total_time_engage[i][j]
+    Z = np.array(Z)
+    print('X= ',X)
+    print('Y= ',Y)
+    print('Z= ',Z)
+
+    # Plot the surface.
+    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+
+    plt.show()
+
     vid.release()
     if FLAGS.ouput:
         out.release()
