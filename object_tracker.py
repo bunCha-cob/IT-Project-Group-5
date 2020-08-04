@@ -94,14 +94,18 @@ def main(_argv):
     
     _, img = vid.read()
     h, w, c = img.shape
-    h_numStep = 12; # number of boxes in a column
-    w_numStep = 20; # number of boxes in a row
+    h_numStep = 24; # number of boxes in a column
+    w_numStep = 40; # number of boxes in a row
 
     # store the total time that customers stay in box[i][j] 
     total_time_engage = [[0 for i in range(w_numStep)] for j in range(h_numStep)]
 
     # store the time that customer k is stationary in box[i][j]
     stationary_time = [[[0 for i in range(w_numStep)] for j in range(h_numStep)] for k in range(1000)]
+
+    # store the positions of single customer 
+    x_single_tracking = []
+    y_single_tracking = []
 
     fps = 0.0
     count = 0 
@@ -202,6 +206,11 @@ def main(_argv):
                 stationary_time[track.track_id][y_pos][x_pos] += time_step 
                 total_time_engage[y_pos][x_pos] += time_step
             
+            # track a single person
+            if class_name == "person" and track.track_id == 10:
+                x_single_tracking.append(x_pos)
+                y_single_tracking.append(y_pos)
+                
         ### UNCOMMENT BELOW IF YOU WANT CONSTANTLY CHANGING YOLO DETECTIONS TO BE SHOWN ON SCREEN
         #for det in detections:
         #    bbox = det.to_tlbr() 
@@ -227,11 +236,11 @@ def main(_argv):
             break
 
     # plot the graph 
-    fig = plt.figure()
+    fig = plt.figure(1)
+    fig.suptitle('Engagement level for different areas', fontsize=20)
     ax = plt.axes(projection='3d')
     ax = plt.axes(projection='3d')
 
-    print(total_time_engage)
     # Data for a three-dimensional line
     x = np.arange(w_numStep-1, -1, -1)
     y = np.linspace(0, h_numStep-1, h_numStep)
@@ -241,13 +250,30 @@ def main(_argv):
         for j in range(w_numStep):
             Z[i][j] = total_time_engage[i][j]
     Z = np.array(Z)
-    print('X= ',X)
-    print('Y= ',Y)
-    print('Z= ',Z)
 
     # Plot the surface.
     ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+    ax.set_xlabel('width')
+    ax.set_ylabel('height')
+    ax.set_zlabel('time')
 
+    ax.view_init(35, 80)
+
+    frame = plt.gca()
+
+    frame.axes.get_xaxis().set_ticks([])
+    frame.axes.get_yaxis().set_ticks([])
+
+    fig2 = plt.figure(2)
+    fig2.suptitle('Walking pattern of a single customer', fontsize=20)
+    plt.plot(x_single_tracking,y_single_tracking, 'ro')
+    plt.axis([0,w_numStep,h_numStep,0])
+
+    frame.axes.get_xaxis().set_ticks([])
+    frame.axes.get_yaxis().set_ticks([])
+
+    fig.savefig('engage_level.jpg')
+    fig2.savefig('single_tracking.jpg')
     plt.show()
 
     vid.release()
