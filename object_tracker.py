@@ -106,6 +106,8 @@ def main(_argv):
     # store the positions of single customer 
     x_single_tracking = []
     y_single_tracking = []
+    # single customer's trackingID
+    single_trackingID = 27
 
     fps = 0.0
     count = 0 
@@ -207,7 +209,7 @@ def main(_argv):
                 total_time_engage[y_pos][x_pos] += time_step
             
             # track a single person
-            if class_name == "person" and track.track_id == 10:
+            if class_name == "person" and track.track_id == single_trackingID:
                 x_single_tracking.append(x_pos)
                 y_single_tracking.append(y_pos)
                 
@@ -237,7 +239,7 @@ def main(_argv):
 
     # plot the graph 
     fig = plt.figure(1)
-    fig.suptitle('Engagement level for different areas', fontsize=20)
+    fig.suptitle('Engagement time on different areas', fontsize=20)
     ax = plt.axes(projection='3d')
     ax = plt.axes(projection='3d')
 
@@ -265,7 +267,8 @@ def main(_argv):
     frame.axes.get_yaxis().set_ticks([])
 
     fig2 = plt.figure(2)
-    fig2.suptitle('Walking pattern of a single customer', fontsize=20)
+    fig2_title = 'Walking pattern of a single customer( trackingID = ' + str(single_trackingID) + ')'
+    fig2.suptitle(fig2_title, fontsize=15)
     plt.plot(x_single_tracking,y_single_tracking, 'ro')
     plt.axis([0,w_numStep,h_numStep,0])
 
