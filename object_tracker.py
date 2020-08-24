@@ -21,6 +21,9 @@ from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
+import mysql.connector as mariadb
+import sys
+
 flags.DEFINE_string('classes', './data/labels/coco.names', 'path to classes file')
 flags.DEFINE_string('weights', './weights/yolov3.tf',
                     'path to weights file')
@@ -236,6 +239,105 @@ def main(_argv):
         # press q to quit
         if cv2.waitKey(1) == ord('q'):
             break
+
+    # insert data into the database
+
+    # initialise track arrays
+    track_time = [0] * 10000000
+    track_customerID = [0] * 10000000
+    track_area = ["" for x in range(10000000)]
+    x_single = [0] * 10000000
+    y_single = [0] * 10000000
+
+    # organise data to be inserted
+    track_index = -1
+    for k in range(1000):
+        for h in range(h_numStep):
+            for w in range(w_numStep):
+                if stationary_time[k][h][w] != 0:
+                    track_index += 1 
+                    track_time[track_index] = stationary_time[k][h][w]
+                    track_customerID[track_index] = k
+                    track_area[track_index] = str(h) + ', ' + str(w)
+    x_tmp = -1
+    y_tmp = -1        
+    single_track_index = -1;
+    for k in range(len(x_single_tracking)):
+        if x_single_tracking[k] != x_tmp and y_single_tracking[k] != y_tmp:
+            single_track_index += 1
+            x_single[single_track_index] = x_single_tracking[k]
+            y_single[single_track_index] = y_single_tracking[k]
+    single_tracking_areas = ""
+    for k in range(single_track_index):
+        single_tracking_areas += '[' + str(x_single[k]) + ',' + str(y_single[k]) + '] , ' 
+
+    # connect and insert the appropriate data in primary_table
+    for k in range(track_index+1):
+        try:
+            conn = mariadb.connect( user="root",
+                                    password="root",
+                                    host="localhost",
+                                    database="trackingDB")
+        
+            cur = conn.cursor()
+            mySql_insert_query = """INSERT INTO primary_table(trackID, customerID, area) 
+                                    VALUES (%s, %s, %s) """
+
+            recordTuple = (k, track_customerID[k], track_area[k])
+            cur.execute(mySql_insert_query, recordTuple)
+            conn.commit()
+
+        except mariadb.Error as error:
+            print ("Failed to insert record into the primary_table {}".format(error))
+        finally:
+            if (conn.is_connected()):
+                cur.close()
+                conn.close()
+
+    # connect and insert the appropriate data in "engaged" table 
+    for k in range(track_index+1):
+        try:
+            conn = mariadb.connect( user="root",
+                                    password="root",
+                                    host="localhost",
+                                    database="trackingDB")
+        
+            cur = conn.cursor()
+            mySql_insert_query = """INSERT INTO engaged(trackID, engagement_time) 
+                                    VALUES (%s, %s) """
+
+            recordTuple = (k, track_time[k])
+            cur.execute(mySql_insert_query, recordTuple)
+            conn.commit()
+
+        except mariadb.Error as error:
+            print ("Failed to insert record into the engaged table {}".format(error))
+        finally:
+            if (conn.is_connected()):
+                cur.close()
+                conn.close()
+
+    # connect and insert the appropriate data in "total_areas" table 
+    try:
+        conn = mariadb.connect( user="root",
+                                password="root",
+                                host="localhost",
+                                database="trackingDB")
+        
+        cur = conn.cursor()
+        mySql_insert_query = """INSERT INTO total_areas(customerID, all_areas_visited) 
+                                    VALUES (%s, %s) """
+
+        recordTuple = (single_trackingID, single_tracking_areas)
+        cur.execute(mySql_insert_query, recordTuple)
+        conn.commit()
+
+    except mariadb.Error as error:
+        print ("Failed to insert record into the total_areas table {}".format(error))
+    finally:
+        if (conn.is_connected()):
+            cur.close()
+            conn.close()
 
     # plot the graph 
     fig = plt.figure(1)

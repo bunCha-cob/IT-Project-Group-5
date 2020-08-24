@@ -5,3 +5,5 @@ lxml
 tqdm
 seaborn
 pillow
+PyQt5
+mariadb
