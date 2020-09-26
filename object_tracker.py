@@ -97,20 +97,33 @@ def main(_argv):
     
     _, img = vid.read()
     h, w, c = img.shape
-    h_numStep = 24; # number of boxes in a column
-    w_numStep = 40; # number of boxes in a row
+    h_numStep = 12; # number of boxes in a column
+    w_numStep = 20; # number of boxes in a row
+
+    M = [[ 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5], 
+     [ 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5],
+     [ 1, 1, 1, 2, 2, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 8, 8],
+     [ 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 8, 8, 8, 8], 
+     [ 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 8, 8, 8, 8, 8, 8, 8],
+     [ 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 8, 8, 8, 8, 8, 8, 8, 7, 7],
+     [ 2, 2, 2, 2, 2, 2, 2, 2, 4, 6, 6, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7],
+     [ 2, 2, 2, 2, 2, 2, 2, 6, 6, 6, 6, 6, 8, 8, 8, 8, 8, 7, 7, 7, 7],
+     [ 2, 2, 2, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 8, 8, 7, 7, 7, 7, 7],
+     [ 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 8, 7, 7, 7, 7, 7],
+     [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7],
+     [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7]]
 
     # store the total time that customers stay in box[i][j] 
-    total_time_engage = [[0 for i in range(w_numStep)] for j in range(h_numStep)]
+    total_time_engage = [[0 for i in range(w_numStep+1)] for j in range(h_numStep+1)]
 
     # store the time that customer k is stationary in box[i][j]
-    stationary_time = [[[0 for i in range(w_numStep)] for j in range(h_numStep)] for k in range(1000)]
+    stationary_time = [[[0 for i in range(w_numStep+1)] for j in range(h_numStep+1)] for k in range(100000)]
 
     # store the positions of single customer 
     x_single_tracking = []
     y_single_tracking = []
     # single customer's trackingID
-    single_trackingID = 27
+    single_trackingID = 34
 
     fps = 0.0
     count = 0 
@@ -267,6 +280,8 @@ def main(_argv):
             single_track_index += 1
             x_single[single_track_index] = x_single_tracking[k]
             y_single[single_track_index] = y_single_tracking[k]
+            x_tmp = x_single[single_track_index] 
+            y_tmp = y_single[single_track_index] 
     single_tracking_areas = ""
     for k in range(single_track_index):
         single_tracking_areas += '[' + str(x_single[k]) + ',' + str(y_single[k]) + '] , ' 
