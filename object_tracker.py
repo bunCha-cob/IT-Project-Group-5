@@ -1,4 +1,3 @@
-#imports below for Yovolov, deep sort, etc.
 import time, random
 import numpy as np
 from absl import app, flags, logging
@@ -12,6 +11,9 @@ from yolov3_tf2.models import (
 from yolov3_tf2.dataset import transform_images
 from yolov3_tf2.utils import draw_outputs, convert_boxes
 
+
+
+
 from deep_sort import preprocessing
 from deep_sort import nn_matching
 from deep_sort.detection import Detection
@@ -22,8 +24,14 @@ from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
+
+
 import mysql.connector as mariadb
 import sys
+
+#imports below for Yovolov, deep sort, etc.
+
+
 
 
 # define flags for weights, classes, etc,
@@ -37,6 +45,11 @@ flags.DEFINE_string('video', './data/video/test.mp4',
 flags.DEFINE_string('output', None, 'path to output video')
 flags.DEFINE_string('output_format', 'XVID', 'codec used in VideoWriter when saving video to file')
 flags.DEFINE_integer('num_classes', 80, 'number of classes in the model')
+
+
+
+
+
 
 
 
