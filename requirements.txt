@@ -7,3 +7,5 @@ seaborn
 pillow
 PyQt5
 mariadb
+tkinter
+#sqlite3
