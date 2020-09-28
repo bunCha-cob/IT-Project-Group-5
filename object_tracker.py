@@ -41,7 +41,7 @@ flags.DEFINE_string('weights', './weights/yolov3.tf',
 flags.DEFINE_boolean('tiny', False, 'yolov3 or yolov3-tiny')
 flags.DEFINE_integer('size', 416, 'resize images to')
 flags.DEFINE_string('video', './data/video/test.mp4',
-                    'path to video file or number for webcam)')
+                    'path to video file or number for webcam)')  #footage being analysed
 flags.DEFINE_string('output', None, 'path to output video')
 flags.DEFINE_string('output_format', 'XVID', 'codec used in VideoWriter when saving video to file')
 flags.DEFINE_integer('num_classes', 80, 'number of classes in the model')
