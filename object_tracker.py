@@ -1,3 +1,4 @@
+#imports below for Yovolov, deep sort, etc.
 import time, random
 import numpy as np
 from absl import app, flags, logging
@@ -24,6 +25,8 @@ from matplotlib import cm
 import mysql.connector as mariadb
 import sys
 
+
+# define flags for weights, classes, etc,
 flags.DEFINE_string('classes', './data/labels/coco.names', 'path to classes file')
 flags.DEFINE_string('weights', './weights/yolov3.tf',
                     'path to weights file')
@@ -36,13 +39,15 @@ flags.DEFINE_string('output_format', 'XVID', 'codec used in VideoWriter when sav
 flags.DEFINE_integer('num_classes', 80, 'number of classes in the model')
 
 
+
+# main 
 def main(_argv):
     # Definition of the parameters
     max_cosine_distance = 0.5
     nn_budget = None
     nms_max_overlap = 1.0
     
-    #initialize deep sort
+    #initialize deep sort see github deep sort for more information
     model_filename = 'model_data/mars-small128.pb'
     encoder = gdet.create_box_encoder(model_filename, batch_size=1)
 
@@ -69,10 +74,11 @@ def main(_argv):
         yolo = YoloV3(classes=FLAGS.num_classes)
 
     # load pre-trained weights
+    # pre-trained from open sourced
     yolo.load_weights(FLAGS.weights)
     logging.info('weights loaded')
 
-    # array contains name of classes
+    # array contains name of classes (flags)
     class_names = [c.strip() for c in open(FLAGS.classes).readlines()]
     logging.info('classes loaded')
 
@@ -99,7 +105,8 @@ def main(_argv):
     h, w, c = img.shape
     h_numStep = 12; # number of boxes in a column
     w_numStep = 20; # number of boxes in a row
-
+    
+    #make matrix-array M of categories of different areas 1=food area, etc.
     M = [[ 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5], 
      [ 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5],
      [ 1, 1, 1, 2, 2, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 8, 8],
@@ -146,6 +153,7 @@ def main(_argv):
         img_in = tf.expand_dims(img_in, 0)
 
         # resize the image to 416x416
+        # remember resolution has to be able to work with it
         # tensorflow.image.resize: resize image to size
         img_in = transform_images(img_in, FLAGS.size)
 
@@ -161,7 +169,7 @@ def main(_argv):
         names = np.array(names)
         converted_boxes = convert_boxes(img, boxes[0])
         features = encoder(img, converted_boxes)    
-
+        # detections
         detections = [Detection(bbox, score, class_name, feature) for bbox, score, class_name, feature in zip(converted_boxes, scores[0], names, features)]
         
         #initialize color map
@@ -176,6 +184,7 @@ def main(_argv):
         detections = [detections[i] for i in indices]        
 
         # Pass detections to the deepsort object and obtain the track information
+        # predicts and updates via detection
         tracker.predict()
         tracker.update(detections)
 
@@ -377,12 +386,12 @@ def main(_argv):
     ax.set_zlabel('time')
 
     ax.view_init(35, 80)
-
+    #gets the polar axis on the current image
     frame = plt.gca()
-
+    #gets x and y axis list of x and y axis tick locations
     frame.axes.get_xaxis().set_ticks([])
     frame.axes.get_yaxis().set_ticks([])
-
+    #Plots the figure
     fig2 = plt.figure(2)
     fig2_title = 'Walking pattern of a single customer( trackingID = ' + str(single_trackingID) + ')'
     fig2.suptitle(fig2_title, fontsize=15)
