@@ -1,3 +1,4 @@
+# The following file is used to load the pretrained weights to allow for succesful classification functions considered critical to our program. Works succesfully.
 from absl import app, flags, logging
 from absl.flags import FLAGS
 import numpy as np
