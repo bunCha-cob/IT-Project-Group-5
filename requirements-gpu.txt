@@ -7,3 +7,5 @@ seaborn
 pillow
 PyQt5
 mariadb
+The requirements described above are all software necessary to conduct program integration and the array of intended tests to ensure our system performed correctly. 
+The System operated succesfully.
