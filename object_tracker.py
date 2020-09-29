@@ -73,21 +73,21 @@ def main(_argv):
     # multi target tracker
     tracker = Tracker(metric)
 
-    # Return a list of physical devices visible to the host runtime
+    # Return an identifiable list of physical devices visible to the host runtime
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
 
     if len(physical_devices) > 0:
         tf.config.experimental.set_memory_growth(physical_devices[0], True)
         # enable memory growth for physical devices
 
-    # identify type of YoloV3 used
+    # utilised to identify type of YoloV3 used
     if FLAGS.tiny:
         yolo = YoloV3Tiny(classes=FLAGS.num_classes)
     else:
         yolo = YoloV3(classes=FLAGS.num_classes)
 
     # load pre-trained weights
-    # pre-trained from open sourced
+    # pre-trained from open sources, many from public repos on github.
     yolo.load_weights(FLAGS.weights)
     logging.info('weights loaded')
 
@@ -95,7 +95,7 @@ def main(_argv):
     class_names = [c.strip() for c in open(FLAGS.classes).readlines()]
     logging.info('classes loaded')
 
-    # capture a video from the camera or a video file
+    # capture a video from the camera or a video file, files for our demonstrations.
     try:
         vid = cv2.VideoCapture(int(FLAGS.video))
     except:
