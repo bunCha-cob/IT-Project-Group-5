@@ -9,3 +9,4 @@ PyQt5
 mariadb
 tkinter
 #sqlite3
+The following outlines all necessary software to ensure succesful utilisation of our system.
