@@ -239,6 +239,8 @@ def main(_argv):
             cv2.rectangle(img, (int(bbox[0]), int(bbox[1]-30)), (int(bbox[0])+(len(class_name)+len(str(track.track_id)))*17, int(bbox[1])), color, -1)
             cv2.putText(img, class_name + "-" + str(track.track_id),(int(bbox[0]), int(bbox[1]-10)),0, 0.75, (255,255,255),2) # insert objectName and objectID
 
+            # display the area each person is in 
+            # cv
             # update the stationary_time and total_time_engage array
             if class_name == "person":
                 x_pos = int(x_cent/x_step)
