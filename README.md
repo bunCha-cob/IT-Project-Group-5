@@ -27,8 +27,23 @@ Python will be used to code the application. Visual Studio Code will be utilized
 Use of known mathematical algorithms and equations to transform data may be used against satisfaction ratings to get accurate weighted ratings. Researched machine learning algorithms may be used to speed up object and person tracking to increase accuracy and efficiency. These algorithms may be confirmed later during testing and later development of the code. See the Research Log for information concerning ideas and research that may be used or used to inform the project.
 
 ## Quick Start
-MariaDB instructions  
 
+Run the following commands:
+
+''' object_tracker.py '''
+
+Results of current demo videos can be found in the data folder.
+
+
+### Further Capabilities
+
+## GUI
+
+In order to pull data from a database, you can use the GUI python file in order to pull data. Code may need to be adjusted depending on the type of database or file type that you want to use.
+
+## MariaDB instructions  
+
+In order to store the data in a MariaDB database can follow the below code
 The instructions below are sourced from multiple internet forums. 
 
  
