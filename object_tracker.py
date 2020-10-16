@@ -11,9 +11,6 @@ from yolov3_tf2.models import (
 from yolov3_tf2.dataset import transform_images
 from yolov3_tf2.utils import draw_outputs, convert_boxes
 
-
-
-
 from deep_sort import preprocessing
 from deep_sort import nn_matching
 from deep_sort.detection import Detection
@@ -23,16 +20,14 @@ from PIL import Image
 from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
 from matplotlib import cm
-
-
-
 import mysql.connector as mariadb
 import sys
 
+# import tkinter libraries for GUI display
+from tkinter import *
+import tkinter as tk
+
 #imports below for Yovolov, deep sort, etc.
-
-
-
 
 # define flags for weights, classes, etc,
 flags.DEFINE_string('classes', './data/labels/coco.names', 'path to classes file')
@@ -45,13 +40,6 @@ flags.DEFINE_string('video', './data/video/test.mp4',
 flags.DEFINE_string('output', None, 'path to output video')
 flags.DEFINE_string('output_format', 'XVID', 'codec used in VideoWriter when saving video to file')
 flags.DEFINE_integer('num_classes', 80, 'number of classes in the model')
-
-
-
-
-
-
-
 
 # main 
 def main(_argv):
@@ -144,6 +132,9 @@ def main(_argv):
     y_single_tracking = []
     # single customer's trackingID
     single_trackingID = 34
+
+    window = tk.Tk()
+    window.geometry('150x500')
 
     fps = 0.0
     count = 0 
@@ -273,10 +264,12 @@ def main(_argv):
                     list_file.write(str(converted_boxes[i][0]) + ' '+str(converted_boxes[i][1]) + ' '+str(converted_boxes[i][2]) + ' '+str(converted_boxes[i][3]) + ' ')
             list_file.write('\n')
 
+        window.mainloop()
+
         # press q to quit
         if cv2.waitKey(1) == ord('q'):
             break
-
+    
     # insert data into the database
 
     # initialise track arrays
