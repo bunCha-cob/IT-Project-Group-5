@@ -41,6 +41,19 @@ flags.DEFINE_string('output', None, 'path to output video')
 flags.DEFINE_string('output_format', 'XVID', 'codec used in VideoWriter when saving video to file')
 flags.DEFINE_integer('num_classes', 80, 'number of classes in the model')
 
+def market_section(i):
+    switcher = {
+        1 : 'shoes',
+        2 : 'pots',
+        3 : 'kitchen equipments',
+        4 : 'paintings',
+        5 : 'clothes',
+        6 : 'souvenir',
+        7 : 'bottles',
+        8 : 'bags'
+    }
+    return switcher.get(i,"Invalid section number")
+
 # main 
 def main(_argv):
     # Definition of the parameters
@@ -133,8 +146,10 @@ def main(_argv):
     # single customer's trackingID
     single_trackingID = 34
 
-    window = tk.Tk()
-    window.geometry('150x500')
+    # store the current position of customer 
+    max_trackID = 0;
+    x_trackID = [-1] * 1000000
+    y_trackID = [-1] * 1000000 
 
     fps = 0.0
     count = 0 
@@ -236,6 +251,11 @@ def main(_argv):
             if class_name == "person":
                 x_pos = int(x_cent/x_step)
                 y_pos = int(y_cent/y_step)
+                #print(str(track.track_id) + ": [" + str(y_pos) + ", " + str(x_pos) + "]") 
+                if track.track_id > max_trackID:
+                    max_trackID = track.track_id
+                x_trackID[track.track_id] = y_pos
+                y_trackID[track.track_id] = x_pos
                 stationary_time[track.track_id][y_pos][x_pos] += time_step 
                 total_time_engage[y_pos][x_pos] += time_step
             
@@ -243,6 +263,11 @@ def main(_argv):
             if class_name == "person" and track.track_id == single_trackingID:
                 x_single_tracking.append(x_pos)
                 y_single_tracking.append(y_pos)
+
+        for track_index in range(max_trackID + 1):
+            if x_trackID[track_index] != -1:
+                print ("customerID " + str(track_index) + ": [" + str(x_trackID[track_index]) + "," + str(y_trackID[track_index]) + "] in " 
+                        + market_section(M[x_trackID[track_index]][y_trackID[track_index]]))
                 
         ### UNCOMMENT BELOW IF YOU WANT CONSTANTLY CHANGING YOLO DETECTIONS TO BE SHOWN ON SCREEN
         #for det in detections:
@@ -263,8 +288,6 @@ def main(_argv):
                 for i in range(0,len(converted_boxes)):
                     list_file.write(str(converted_boxes[i][0]) + ' '+str(converted_boxes[i][1]) + ' '+str(converted_boxes[i][2]) + ' '+str(converted_boxes[i][3]) + ' ')
             list_file.write('\n')
-
-        window.mainloop()
 
         # press q to quit
         if cv2.waitKey(1) == ord('q'):
