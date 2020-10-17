@@ -151,6 +151,9 @@ def main(_argv):
     x_trackID = [-1] * 1000000
     y_trackID = [-1] * 1000000 
 
+    # file store the total_time_engage
+    file = 'total_time_engage.txt'
+
     fps = 0.0
     count = 0 
     while True:
@@ -268,6 +271,13 @@ def main(_argv):
             if x_trackID[track_index] != -1:
                 print ("customerID " + str(track_index) + ": [" + str(x_trackID[track_index]) + "," + str(y_trackID[track_index]) + "] in " 
                         + market_section(M[x_trackID[track_index]][y_trackID[track_index]]))
+        
+        with open(file, 'w') as filetostore:
+            for i in range(h_numStep):
+                for j in range(w_numStep):
+                    filetostore.write("{:.2f}".format(total_time_engage[i][j]) + " ")
+                filetostore.write("\n")
+                
                 
         ### UNCOMMENT BELOW IF YOU WANT CONSTANTLY CHANGING YOLO DETECTIONS TO BE SHOWN ON SCREEN
         #for det in detections:
@@ -292,7 +302,10 @@ def main(_argv):
         # press q to quit
         if cv2.waitKey(1) == ord('q'):
             break
-    
+
+    f = open("total_time_engage.txt", "rt")
+    f.close()
+
     # insert data into the database
 
     # initialise track arrays
