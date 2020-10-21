@@ -7,14 +7,15 @@ Created and designed by Group 5
 ## Introduction
 This project aims to automatically analyse the walking patterns of the customers in the marketplaces and shopping areas. The customers are monitored with cameras and the footages of these cameras will be analysed to highlight the different rates of satisfaction to enhance the services provided to them. 
 We aim to develop a tool that can automatically analyse the walking patterns of customers in shopping areas and analyse the different rates of satisfaction in order to enhance service to them. This tool will be tested, and results should be documented accordingly.
-### Background
+## Background
 
 According to the initial project description the project aims to “automatically analyse the walking patterns of the customers in the marketplaces and shopping areas. The customers are monitored with cameras and the footages of these cameras will be analysed to highlight the different rates of satisfaction to enhance the services provided to them” (https://moodle.telt.unsw.edu.au/).
 
 The project will be used as a source of further research into how to rate satisfaction of customers in marketplaces. There is currently publicly available research concerning the detection and tracking of people and objects given footage (see the Research Log for more information). There is also research concerning possible key satisfaction indicators of customers based on their engagement in terms of distance and time with objects in stores (see the Research Log for more information). This research will provide the basis for the background of our project and be utilized to develop our own application to track and rate customers satisfaction. The application developed in this project will be used ultimately in order to enhance the service to customers in order to increase their rate of satisfaction when shopping. This will help to provide further insight into research in this area and provide a tool to test and gather data relating to this field of work and the satisfaction indicators chosen for this project. The project will provide future capabilities to analyse walking patterns in relation to customer satisfaction and provide a tool that can gather data that marks satisfaction based on engagement-based indicators.
 
 Machine learning tactics will used in this project in order to get results that are relatively accurate and precise. Current research and applications can be found to use machine learning in order to detect and track people and objects (see the Research Log and 8. Intellectual Property of this contract for more information). These pre-trained machine learning applications can be utilized in this project in order to form the basis of tracking people’s trajectories and engagement with objects. Research of machine learning algorithms can facilitate enhancing these applications in order to gain better accuracy and precision. This provides the background for our critical systems in the project and the basis of how we will be able to detect the people and objects in the shop
-### Architecture
+
+## Architecture
 This tool utilizes several other free online tools that use machine learning to track humans and objects. 
 The project will utilize publicly available software produced and delivered on the GitHub repository yolov3_deepsort developed by theAIGuysCode. This repository can be found under the following link: https://github.com/theAIGuysCode/yolov3_deepsort?fbclid=IwAR1pTROfr90DNreMSxcPZ42AkAEDUQoGRaYXylFuZwB5JQWJv8857co8Fmk
 
@@ -26,13 +27,19 @@ Python will be used to code the application. Visual Studio Code will be utilized
 
 Use of known mathematical algorithms and equations to transform data may be used against satisfaction ratings to get accurate weighted ratings. Researched machine learning algorithms may be used to speed up object and person tracking to increase accuracy and efficiency. These algorithms may be confirmed later during testing and later development of the code. See the Research Log for information concerning ideas and research that may be used or used to inform the project.
 
-## Quick Start
+
+### Quick Start
 
 Run the following commands:
 
 ''' object_tracker.py '''
 
 Results of current demo videos can be found in the data folder.
+
+
+
+
+
 
 
 ### Further Capabilities
